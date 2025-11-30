@@ -6,10 +6,25 @@ on:
       - main
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+tests:
+  runs-on: ubuntu-latest
+  
+  services:
+    postgres:
+      image: postgres:13
+      env:
+        POSTGRES_DB: kittygram
+        POSTGRES_USER: kittygram_user
+        POSTGRES_PASSWORD: kittygram_password
+      options: >-
+        --health-cmd pg_isready
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+      ports:
+        - 5432:5432
 
-    steps:
+  steps:
     - name: Check out code
       uses: actions/checkout@v3
 
@@ -31,8 +46,16 @@ jobs:
         python -m ruff check .
 
     - name: Run backend tests
+      env:
+        POSTGRES_DB: kittygram
+        POSTGRES_USER: kittygram_user
+        POSTGRES_PASSWORD: kittygram_password
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: kittygram
       run: |
         cd backend
+        python manage.py migrate
         python manage.py test
 
     - name: Set up Node.js for frontend
