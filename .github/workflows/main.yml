@@ -6,72 +6,72 @@ on:
       - main
 
 jobs:
-tests:
-  runs-on: ubuntu-latest
-  
-  services:
-    postgres:
-      image: postgres:13
-      env:
-        POSTGRES_DB: kittygram
-        POSTGRES_USER: kittygram_user
-        POSTGRES_PASSWORD: kittygram_password
-      options: >-
-        --health-cmd pg_isready
-        --health-interval 10s
-        --health-timeout 5s
-        --health-retries 5
-      ports:
-        - 5432:5432
+  tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: kittygram
+          POSTGRES_USER: kittygram_user
+          POSTGRES_PASSWORD: kittygram_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
-  steps:
-    - name: Check out code
-      uses: actions/checkout@v3
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        python -m pip install --upgrade pip 
-        pip install -r requirements.txt
-        pip install ruff
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip 
+          pip install -r requirements.txt
+          pip install ruff
 
-    - name: Test with ruff
-      run: |
-        cd backend
-        python -m ruff check .
+      - name: Test with ruff
+        run: |
+          cd backend
+          python -m ruff check .
 
-    - name: Run backend tests
-      env:
-        POSTGRES_DB: kittygram
-        POSTGRES_USER: kittygram_user
-        POSTGRES_PASSWORD: kittygram_password
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: kittygram
-      run: |
-        cd backend
-        python manage.py migrate
-        python manage.py test
+      - name: Run backend tests
+        env:
+          POSTGRES_DB: kittygram
+          POSTGRES_USER: kittygram_user
+          POSTGRES_PASSWORD: kittygram_password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: kittygram
+        run: |
+          cd backend
+          python manage.py migrate
+          python manage.py test
 
-    - name: Set up Node.js for frontend
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Set up Node.js for frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
 
-    - name: Run frontend tests
-      run: |
-        cd frontend
-        npm test -- --watchAll=false
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --watchAll=false
 
   build_and_push_to_docker_hub:
     name: Push Docker images to DockerHub
