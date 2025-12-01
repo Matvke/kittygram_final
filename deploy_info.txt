@@ -1,0 +1,4 @@
+{
+  "kittygram_domain": "https://kittygram.example.com",
+  "taski_domain": "https://taski.example.com"
+}
